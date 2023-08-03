@@ -1,0 +1,388 @@
+---
+title: "Bellabeat Case Study"
+author: "Christine Tufts"
+date: "2023-07-26"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+  
+Welcome to my Bellabeat Case Study! The purpose of this case study is to 
+identify trends in smart device usage and how these trends can help Bellabeat
+and their customers. 
+
+# Data Source
+
+The data source for this case study was found on Kaggle: 
+[FitBit Fitness Tracker Data](https://www.kaggle.com/datasets/arashnic/fitbit) 
+(CC0: Public Domain, dataset made available through Mobius)
+This Kaggle data set contains personal fitness tracker from thirty fitbit users.
+I will mainly be focusing on the tables for Daily Activity, Weight, and Sleep because these data set seem to have the most complete data. Many of the smaller tables are included in the main Daily Activity data table. 
+
+------------------------------------------------------------------------------------------------
+
+# Observations and Cleaning
+
+The sample size is very small. It only contains 33 users and may not represent the 
+population as a whole. For example, if you are using this sample to represent
+the population of the united states the sample size of 33 has a margin of error
+of about 18%, which is pretty high.  
+
+Daily Activity Data Table Contents:
+
+* Id
+* Steps
+* Distance
+* Various Degrees of Active Distance (Very, Moderately, Light, Sedentary)
+* Various Degrees of Minute (Very, Moderately, Light, Sedentary)
+* Calories 
+
+Daily Sleep Data Table Contents:
+
+* Id
+* Date
+* Total records
+* Total minutes asleep
+* Total time in bed 
+
+Weight Log Data Table Contents:
+
+* Id
+* Weight in Kg
+* Weight in lb
+* Fat 
+* BMI
+* Whether or not the report was manually made 
+
+Id can be used as Primary Key in the daily activity data table and is consistent throughout the other tables. Id can be used as a foreign key to combine the tables.
+For the daily sleep table I'm assuming when multiple records for the day happen is when the user wakes up and falls back to sleep or takes a nap during the day.  
+
+------------------------------------------------------------------------------------------------
+
+## Using Sheets to Clean
+
+
+#### Daily Activity
+
+**I was able to verify if the data sets had any missing values or empty cells by using conditional formatting.**
+
+![](https://drive.google.com/uc?export=view&id=1cQIkql5QWuXkjln64W1B7bJv1CrbfwUb)
+
+
+
+
+**Using formatting to ensure that the date format is consistent throughout:**
+
+![](https://drive.google.com/uc?export=view&id=1jPaA0A64N_XJlpvinhh_OlfxdeJUwrrs)
+
+
+
+
+**Removing any duplicated rows:**
+
+![](https://drive.google.com/uc?export=view&id=1vz3cXwNhAb7MNhbR3v5XN_BPeA-ksFfn)
+
+**This shows no duplicated rows were found.**
+
+![](https://drive.google.com/uc?export=view&id=1DB-mc92at-p2JDAi_8kmM9WWuGoiGkm1)
+
+-------------------------------------------------------------------------------------------------
+
+**I noticed that in the Daily Activity table there was some missing data. Every variable recorded on these rows were equal to zero with the exception of the sedentary min variable. I assume that because the sedentary mins equaled to 24 hours, that the device was off or not being used those days. I used a filter to show the rows.**
+
+![](https://drive.google.com/uc?export=view&id=1PP_VgXTRI_HGpKZc86Z4k6c8RQpA3WaF)
+
+**Showing 4 days without entries:**
+
+![](https://drive.google.com/uc?export=view&id=1angcWLmz2w4W-AOAchWDvv9zPV-pzLUF)
+![](https://drive.google.com/uc?export=view&id=19LnuK8Oodua0QnvDj78CXHfMHAXNboIu)
+
+**These row will be deleted.**
+
+![](https://drive.google.com/uc?export=view&id=1pY14-urHazoNF7eSHr7o_lugRlJAfS_M)
+
+
+-------------------------------------------------------------------------------------------------
+
+#### Daily Sleep
+
+**I was able to verify if the data sets had any missing values or empty cells by using conditional formatting.**
+
+![](https://drive.google.com/uc?export=view&id=17CBEKonIop8MUTNH5-VCW82UuezK9Gbn)
+
+
+
+
+**Using formatting to ensure that the date format is consistent throughout:**
+
+![](https://drive.google.com/uc?export=view&id=1eRzcnXAWIgd2X3ZwSCF871mjmRXnef0V)
+
+**Removing any duplicated rows:**
+
+![](https://drive.google.com/uc?export=view&id=1bm6vmlTuMM-j-V04TmBhOZuCNGZtlwf9)
+
+**This shows 3 duplicate rows were deleted.** 
+
+![](https://drive.google.com/uc?export=view&id=1YpFVdS2dM-fNbvgZSdOu3rrz7oDGHiAR)
+
+
+-------------------------------------------------------------------------------------------------
+
+#### Weight Log
+
+**I was able to verify if the data sets had any missing values or empty cells by using conditional formatting.**
+
+![](https://drive.google.com/uc?export=view&id=1p0c07655l5ckUJN_q2MlCqvmi0f4BjLL)
+
+
+
+
+**In the weight log data there is a column, "Fat", that shows only two entries. This being insufficient data the column will be deleted.**  
+
+
+
+
+**Fat Column Deletion**
+
+![](https://drive.google.com/uc?export=view&id=1cqfCFXo30ZYZHaEciyvzOgxrsfv3bhKC)
+
+
+
+
+**Using formatting to ensure that the date format is consistent throughout:**  
+
+![](https://drive.google.com/uc?export=view&id=13kAgP5_x5fFZkb-y21QKfApFjxeQxnav)
+
+**Removing any duplicated rows:**
+
+![](https://drive.google.com/uc?export=view&id=1xIcpvBMqIRV9WO_cnC0ThK-HvU7i9lOO)
+
+**This shows no duplicated rows were found.**
+
+![](https://drive.google.com/uc?export=view&id=1zQu7d2dgc2SuXh7xNs6raXTurRuAogfV)
+
+
+## Setting up and Loading My Workspace 
+
+### Loading Packages:
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(janitor)
+library(here)
+library(skimr)
+library(dplyr)
+```
+### Loading Cleaned Data onto R: 
+```{r}
+daily_activity <- read.csv("https://drive.google.com/uc?export=view&id=1XH6pptANF2Ex2ZzHb4fSs9X_iA74MJs9")
+daily_sleep <- read.csv("https://drive.google.com/uc?export=view&id=1JP9Y5S_yrkVktz6843DLrChuZ9d3adZm")
+weight_log <- read.csv("https://drive.google.com/uc?export=view&id=1m2TpjMLc3D2Cv8D1iI7x-Qz-a3W_EKMs")
+```
+### Inpecting Data With R: 
+```{r inspections}
+head(daily_activity)
+head(daily_sleep)
+head(weight_log)
+str(daily_activity)
+str(daily_sleep)
+str(weight_log)
+```
+
+
+
+-------------------------------------------------------------------------------------------------
+
+
+
+Using R, I determined that the amount of users in the most complete data set (the Daily Activity table) was 33. Only 8 of the users logged their weight and only 24 users logged their sleep.  
+
+```{r}
+n_distinct(daily_activity$Id)
+n_distinct(daily_sleep$Id)
+n_distinct(weight_log$Id)
+```
+-------------------------------------------------------------------------------------------------
+
+Using R, I can see if there are any duplicated rows in our data. This verifies that the data has been cleaned. 
+
+```{r Duplicates}
+sum(duplicated(daily_activity))
+sum(duplicated(daily_sleep))
+sum(duplicated(weight_log))
+```
+
+
+# Visulizations from the Data
+
+```{r Total Steps Vs Calories, echo = FALSE}
+ggplot(data = daily_activity) +
+  geom_point(mapping = aes(x=Calories, y=TotalSteps, color=Id)) +
+  theme(legend.title = element_text(color = "blue", size = 13),
+      legend.text = element_blank()) +
+  labs(title=" Calories Vs. Steps",
+       x ="Calories", y = "Total Steps")
+```
+
+This shows the relationship between the amount of calories logged and the amount of steps. There seems to be a trend showing that the when users had a higher calorie count they also had a higher step count. 
+
+-------------------------------------------------------------------------------------------------
+
+```{r}
+ggplot(data = daily_activity) +
+  geom_point(mapping = aes(x=TotalSteps, y=TotalDistance, color = Id)) +
+  labs(title = "Total Distance Vs. Total Steps", 
+       subtitle = "The amount of didstance covered by the steps",
+       x = "Total Steps", y = "Total Distance") +
+  theme(legend.title = element_text(color = "blue", size = 13),
+        legend.text = element_blank())
+```
+
+This shows that the more steps a user had the more distance they went. Suggesting that the steps were not made on a treadmill or other stationary steps device.
+
+
+-------------------------------------------------------------------------------------------------
+
+
+```{r echo=FALSE}
+ggplot(data = daily_sleep) +
+  geom_line(mapping = aes(y = TotalTimeInBed, x = SleepDay), color = "blue") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  geom_point(mapping= aes(y = TotalTimeInBed, x = SleepDay, color = Id)) +
+  labs(title = "Total Time In Bed Over Time", subtitle = "Time in bed from day to day", 
+       x = "Sleep Day", y = "Total Time in Bed") + 
+  theme(legend.title = element_text(size = 13),
+       legend.text = element_blank()) +
+  annotate("Text", y = 2, x = 1, label = "T") +
+  annotate("Text", y = 2, x = 2, label = "W") +
+  annotate("Text", y = 2, x = 3, label = "T") +
+  annotate("Text", y = 2, x = 4, label = "F") +
+  annotate("Text", y = 2, x = 5, label = "S") +
+  annotate("Text", y = 2, x = 6, label = "S") +
+  annotate("Text", y = 2, x = 7, label = "M") +
+  annotate("Text", y = 2, x = 8, label = "T") +
+  annotate("Text", y = 2, x = 9, label = "W") +
+  annotate("Text", y = 2, x = 10, label = "T") +
+  annotate("Text", y = 2, x = 11, label = "F") +
+  annotate("Text", y = 2, x = 12, label = "S") +
+  annotate("Text", y = 2, x = 13, label = "S") +
+  annotate("Text", y = 2, x = 14, label = "M") +
+  annotate("Text", y = 2, x = 15, label = "T") +
+  annotate("Text", y = 2, x = 16, label = "W") +
+  annotate("Text", y = 2, x = 17, label = "T") +
+  annotate("Text", y = 2, x = 18, label = "F") +
+  annotate("Text", y = 2, x = 19, label = "S") +
+  annotate("Text", y = 2, x = 20, label = "S") +
+  annotate("Text", y = 2, x = 21, label = "M") +
+  annotate("Text", y = 2, x = 22, label = "T") +
+  annotate("Text", y = 2, x = 23, label = "W") +
+  annotate("Text", y = 2, x = 24, label = "T") +
+  annotate("Text", y = 2, x = 25, label = "F") +
+  annotate("Text", y = 2, x = 26, label = "S") +
+  annotate("Text", y = 2, x = 27, label = "S") +
+  annotate("Text", y = 2, x = 28, label = "M") +
+  annotate("Text", y = 2, x = 29, label = "T") +
+  annotate("Text", y = 2, x = 30, label = "W") +
+  annotate("Text", y = 2, x = 31, label = "T") 
+```
+
+This chart shows the amount of time in bed per day. You can see, with the exception of a few outliers, that the time in bed was slightly longer during the weekends as expected. 
+
+-------------------------------------------------------------------------------------------------
+
+```{r echo=FALSE}
+ggplot(data = daily_activity) +
+  geom_line(mapping = aes(y = TotalSteps, x = ActivityDate), color = "blue") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  geom_point(mapping= aes(y = TotalSteps, x = ActivityDate, color = Id)) +
+  labs(title = "Total Steps Over Time", subtitle = "Steps from day to day", 
+       x = "Activity Day", y = "Total Steps") + 
+  theme(legend.title = element_text(size = 13),
+        legend.text = element_blank()) +
+  annotate("Text", y = 25000, x = 1, label = "T", color = "red") +
+  annotate("Text", y = 25000, x = 2, label = "W", color = "red") +
+  annotate("Text", y = 25000, x = 3, label = "T", color = "red") +
+  annotate("Text", y = 25000, x = 4, label = "F", color = "red") +
+  annotate("Text", y = 25000, x = 5, label = "S", color = "red") +
+  annotate("Text", y = 25000, x = 6, label = "S", color = "red") +
+  annotate("Text", y = 25000, x = 7, label = "M", color = "red") +
+  annotate("Text", y = 25000, x = 8, label = "T", color = "red") +
+  annotate("Text", y = 25000, x = 9, label = "W", color = "red") +
+  annotate("Text", y = 25000, x = 10, label = "T", color = "red") +
+  annotate("Text", y = 25000, x = 11, label = "F", color = "red") +
+  annotate("Text", y = 25000, x = 12, label = "S", color = "red") +
+  annotate("Text", y = 25000, x = 13, label = "S", color = "red") +
+  annotate("Text", y = 25000, x = 14, label = "M", color = "red") +
+  annotate("Text", y = 25000, x = 15, label = "T", color = "red") +
+  annotate("Text", y = 25000, x = 16, label = "W", color = "red") +
+  annotate("Text", y = 25000, x = 17, label = "T", color = "red") +
+  annotate("Text", y = 25000, x = 18, label = "F", color = "red") +
+  annotate("Text", y = 25000, x = 19, label = "S", color = "red") +
+  annotate("Text", y = 25000, x = 20, label = "S", color = "red") +
+  annotate("Text", y = 25000, x = 21, label = "M", color = "red") +
+  annotate("Text", y = 25000, x = 22, label = "T", color = "red") +
+  annotate("Text", y = 25000, x = 23, label = "W", color = "red") +
+  annotate("Text", y = 25000, x = 24, label = "T", color = "red") +
+  annotate("Text", y = 25000, x = 25, label = "F", color = "red") +
+  annotate("Text", y = 25000, x = 26, label = "S", color = "red") +
+  annotate("Text", y = 25000, x = 27, label = "S", color = "red") +
+  annotate("Text", y = 25000, x = 28, label = "M", color = "red") +
+  annotate("Text", y = 25000, x = 29, label = "T", color = "red") +
+  annotate("Text", y = 25000, x = 30, label = "W", color = "red") +
+  annotate("Text", y = 25000, x = 31, label = "T", color = "red") 
+```
+
+Even though, as seen above, user trended to being in bed longer on the weekend, their steps seemed slightly more or similar as throughout the week. 
+
+
+-------------------------------------------------------------------------------------------------
+
+```{r echo=FALSE}
+ggplot(data = daily_sleep, aes(x=TotalMinutesAsleep, y=TotalTimeInBed)) +
+  geom_point(aes(color = Id)) +
+  geom_smooth()+
+  theme(legend.title = element_text(color = "blue", size = 13),
+        legend.text = element_blank()) +
+  labs(title="  Time in Bed VS. Time Asleep",
+       x ="Time Asleep", y = "Time in Bed")
+```
+
+This shows that for most users the time spent in bed was similar to the time they were asleep.
+
+-------------------------------------------------------------------------------------------------
+
+```{r echo=FALSE}
+ggplot(data = weight_log) +
+  geom_boxplot(mapping = aes(x=IsManualReport, y=WeightPounds)) +
+  labs(title="Comparison of Manual vs Automatic Reports (Weight in lb)",
+       x="Is Manual Report", 
+       y="Weight (lb)")
+
+```
+
+There is a wider range and slightly higher median weight for manually reported weights compared to automatically reported weights. This could indicate that users who report their weights manually tend to be heavier than those who have their weights reported automatically, although further statistical testing would be required to confirm this. 
+
+
+
+-------------------------------------------------------------------------------------------------
+
+
+# Observations and Suggestions
+
+Observations: 
+
+* There is a slight correlation to user's weekend and their downtime.
+* There is a slight correlation to user's weight and how its reported.
+* The total time in bed for each user is roughly the time they are asleep.
+* Steps are made with distance and are not stationary. 
+
+
+Here are some ideas for future marketing campaigns:
+
+* Using information from this data and future data Bellabeat can create special fun days on certain low activity days of the week to get users moving. 
+* Bellabeat can market a scale that links into the devices so that it increases the amount of users that report their weight automatically. 
+* If Bellabeat wants to continue collecting data from its users to help customize their marketing strategies I suggest creating daily incentives (like points or streak scores) so that users will be compelled to use their app and log their actives on a daily basis. 
